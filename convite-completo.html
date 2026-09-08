@@ -15,22 +15,19 @@ html, body {
 }
 body { display: grid; place-items: center; }
 
-/* ambient light behind the stage (desktop) */
 .ambient {
   position: fixed; inset: -20%; pointer-events: none; z-index: 0;
   background:
-    radial-gradient(60% 45% at 50% 38%, rgba(190,190,190,.10), transparent 70%),
-    radial-gradient(70% 60% at 50% 100%, rgba(120,120,120,.06), transparent 70%);
+    radial-gradient(58% 42% at 50% 38%, rgba(190,190,190,.09), transparent 70%),
+    radial-gradient(70% 60% at 50% 100%, rgba(120,120,120,.05), transparent 70%);
   filter: blur(8px);
 }
 
-/* ───────────────────────── stage (9:16) ───────────────────────── */
+/* ───────────────────────── palco (9:16) ───────────────────────── */
 .stage {
   position: relative; z-index: 1;
   width: min(100vw, calc(100dvh * 9 / 16));
   height: min(100dvh, calc(100vw * 16 / 9));
-  perspective: 1600px;
-  perspective-origin: 50% 42%;
   overflow: hidden;
   opacity: 0;
 }
@@ -38,155 +35,114 @@ body { display: grid; place-items: center; }
   .stage {
     width: min(calc(100vw - 48px), calc((100dvh - 48px) * 9 / 16));
     height: min(calc(100dvh - 48px), calc((100vw - 48px) * 16 / 9));
-    border-radius: 14px; overflow: hidden;
+    border-radius: 14px;
     box-shadow: 0 60px 120px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.05);
   }
 }
+.tilt { position: absolute; inset: 0; }
 
-.tilt { position: absolute; inset: 0; transform-style: preserve-3d; }
-
-/* ─────────────────────── envelope geometry ────────────────────── */
-/* measured from the source PDF: flap edges meet the sides at 37.19% /
-   38.85% and the V apex (where the wax seal sits) at 53.33% / 58.33% */
+/* ─────────────────── geometria do envelope ────────────────────── */
+/* medida no PDF de origem: as bordas da aba encontram as laterais em
+   37,19% e 38,85%; o bico do V (onde fica o lacre) em 53,33% / 58,33% */
 .scene {
   --edge-l: 37.19%;
   --edge-r: 38.85%;
   --apex-x: 53.33%;
   --apex-y: 58.33%;
   --flap-poly: polygon(0 0, 100% 0, 100% var(--edge-r), var(--apex-x) var(--apex-y), 0 var(--edge-l));
-  --flap-poly-flip: polygon(0 100%, 100% 100%, 100% 61.15%, 53.33% 41.67%, 0 62.81%);
   --body-poly: polygon(0 var(--edge-l), var(--apex-x) var(--apex-y), 100% var(--edge-r), 100% 100%, 0 100%);
   position: absolute; inset: 0;
-  transform-style: preserve-3d;
 }
-
 .layer { position: absolute; inset: 0; }
 
-/* 1 — inside of the envelope, revealed as the flap lifts */
+/* 1 · forro do envelope, revelado quando a aba sobe */
 .interior {
   clip-path: var(--flap-poly);
-  background:
-    linear-gradient(180deg, #000 0%, #0a0a0a 45%, #121212 100%),
-    #0a0a0a;
-  box-shadow: inset 0 -40px 60px -20px rgba(0,0,0,.9);
+  background: linear-gradient(180deg, #000 0%, #070707 50%, #101010 100%);
   z-index: 1;
 }
 
-/* 2 — the invitation card, tucked inside */
+/* 2 · o convite, guardado dentro */
 .card-wrap { z-index: 2; }
 .card {
   position: absolute; inset: 0;
   background: var(--img-convite) center / 100% 100% no-repeat;
   background-color: #0a0a0a;
   transform: translateY(66%) scale(.9);
-  box-shadow: 0 -18px 46px -8px rgba(0,0,0,.85);
+  box-shadow: 0 -22px 50px -10px rgba(0,0,0,.9);
   will-change: transform;
 }
 .sweep {
   position: absolute; inset: 0; pointer-events: none; opacity: 0;
-  background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.14) 50%, transparent 62%);
-  background-size: 250% 100%; background-position: 120% 0;
+  background: linear-gradient(102deg, transparent 40%, rgba(255,255,255,.11) 50%, transparent 60%);
+  background-size: 260% 100%; background-position: 120% 0;
 }
 
-/* 3 — front body of the envelope, hides the card until it rises */
+/* 3 · frente do envelope — esconde o convite até ele subir */
 .body {
   clip-path: var(--body-poly);
   background: var(--img-envelope) center / 100% 100% no-repeat;
   z-index: 3;
 }
-.body .edge { position: absolute; inset: 0; }
+.body .edge { position: absolute; inset: 0; opacity: 0; }
 .body .edge path {
-  fill: none; stroke: rgba(255,255,255,.16); stroke-width: 2.6;
+  fill: none; stroke: rgba(255,255,255,.18); stroke-width: 2.6;
   stroke-linejoin: round; vector-effect: non-scaling-stroke;
 }
-.body .edge { opacity: 0; }   /* só acende quando a aba se levanta */
-/* soft shadow the closed flap casts onto the body */
+
+/* 4 · sombra que a aba fechada projeta sobre a frente */
 .flap-shadow {
   clip-path: var(--body-poly); z-index: 4; pointer-events: none;
   background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 22%);
 }
 
-/* 4 — the flap itself */
-.flap {
-  z-index: 5;
-  transform-origin: 50% 0%;
-  transform-style: preserve-3d;
-  will-change: transform;
+/* 5 · a luz vem da boca do envelope: tudo abaixo dela recua para a sombra */
+.mouth-shade {
+  z-index: 5; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg,
+    transparent 38%, rgba(0,0,0,.55) 54%, rgba(0,0,0,.85) 66%, rgba(0,0,0,.92) 100%);
 }
-.flap-face { position: absolute; inset: 0; }
-.flap-front {
+
+/* 6 · a aba */
+.flap {
+  z-index: 6;
   clip-path: var(--flap-poly);
   background: var(--img-envelope) center / 100% 100% no-repeat;
-}
-.flap-back {
-  clip-path: var(--flap-poly-flip);
-  transform: rotateX(180deg);
-  background: linear-gradient(180deg, #151515 0%, #0d0d0d 55%, #060606 100%);
-  opacity: 0;
-}
-.flap-back::after { /* fold crease */
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.05), transparent 30%);
-}
-/* lighting that darkens the flap as it swings back */
-.flap-shade {
-  position: absolute; inset: 0; opacity: 0; pointer-events: none;
-  background: rgba(0,0,0,.85); clip-path: var(--flap-poly);
+  will-change: transform, opacity;
 }
 
-/* the crack of light along the seal line */
-.crack { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
-.crack path {
-  fill: none; stroke: #fff; stroke-width: 2.4; stroke-linecap: round;
-  stroke-linejoin: round; opacity: 0;
-  filter: drop-shadow(0 0 6px rgba(255,255,255,.9)) drop-shadow(0 0 18px rgba(220,220,220,.5));
-}
-
-/* wax chips */
-.chips { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
-.chip {
-  position: absolute; left: 52.1%; top: 56.1%;
-  width: 7px; height: 6px; margin: -3px 0 0 -3px;
-  border-radius: 45% 55% 50% 60%;
-  background: linear-gradient(140deg, #f2f2f2, #9a9a9a 55%, #5e5e5e);
-  opacity: 0;
-}
-
-/* ───────────────────────── the seal button ────────────────────── */
+/* ───────────────────────── o lacre ────────────────────────────── */
 .seal-btn {
   position: absolute; z-index: 8;
   left: 52.1%; top: 56.1%;
   width: 37%; aspect-ratio: 1; transform: translate(-50%, -50%);
   border: 0; padding: 0; background: transparent; border-radius: 50%;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  appearance: none;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; appearance: none;
 }
 .seal-btn:focus-visible { outline: 1px solid rgba(255,255,255,.55); outline-offset: 10px; }
 .glow {
-  position: absolute; inset: -32%; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(255,255,255,.20), rgba(255,255,255,.05) 45%, transparent 68%);
-  opacity: .5;
+  position: absolute; inset: -34%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,255,255,.18), rgba(255,255,255,.05) 46%, transparent 68%);
+  opacity: .45;
 }
 .ring {
   position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-  border: 1px solid rgba(255,255,255,.30); opacity: 0;
+  border: 1px solid rgba(255,255,255,.34); opacity: 0;
 }
 
-/* hint */
 .hint {
   position: absolute; z-index: 8; left: 0; right: 0; top: 74%;
   text-align: center; opacity: 0;
   font-size: clamp(9px, 2.4vw, 11px); letter-spacing: .30em; text-transform: uppercase;
-  color: rgba(255,255,255,.42); pointer-events: none;
+  color: rgba(255,255,255,.40); pointer-events: none;
 }
 
-/* ───────────── clickable hotspots on the invitation ───────────── */
+/* ───────────── áreas clicáveis sobre o convite ────────────────── */
 .hotspots { position: absolute; inset: 0; z-index: 9; opacity: 0; pointer-events: none; }
 .hotspots.on { pointer-events: auto; }
 .hotspot {
   position: absolute; top: 76.4%; height: 10.2%; width: 15.4%;
-  border-radius: 12px; display: block;
-  -webkit-tap-highlight-color: transparent;
+  border-radius: 12px; display: block; -webkit-tap-highlight-color: transparent;
   transition: transform .35s cubic-bezier(.2,.7,.3,1), background-color .35s;
 }
 .hotspot:hover, .hotspot:focus-visible { background: rgba(255,255,255,.07); transform: translateY(-2px); outline: none; }
@@ -204,8 +160,8 @@ body { display: grid; place-items: center; }
 .icon-btn {
   width: 34px; height: 34px; display: grid; place-items: center;
   border-radius: 50%; border: 1px solid rgba(255,255,255,.14);
-  background: rgba(10,10,10,.45); backdrop-filter: blur(6px);
-  color: rgba(255,255,255,.62); cursor: pointer; padding: 0;
+  background: rgba(10,10,10,.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  color: rgba(255,255,255,.6); cursor: pointer; padding: 0;
   transition: color .25s, border-color .25s;
 }
 .icon-btn:hover { color: #fff; border-color: rgba(255,255,255,.34); }
@@ -218,11 +174,10 @@ body { display: grid; place-items: center; }
 }
 .loader span {
   font-size: 10px; letter-spacing: .42em; text-transform: uppercase;
-  color: rgba(255,255,255,.34); animation: breathe 2s ease-in-out infinite;
+  color: rgba(255,255,255,.32); animation: breathe 2s ease-in-out infinite;
 }
 @keyframes breathe { 0%,100% { opacity: .3 } 50% { opacity: .85 } }
 .loader.done { opacity: 0; pointer-events: none; }
-
 @media (prefers-reduced-motion: reduce) { .loader span { animation: none } }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -234,9 +189,9 @@ body { display: grid; place-items: center; }
   <div class="tilt" id="tilt">
     <div class="scene" id="scene">
 
-      <div class="layer interior"></div>
+      <div class="layer interior" id="interior"></div>
 
-      <div class="layer card-wrap">
+      <div class="layer card-wrap" id="cardWrap">
         <div class="card" id="card" role="img"
              aria-label="Convite: a Romini convida você para a inauguração do seu novo showroom em João Pessoa. Dia 17 de setembro, às 19h.">
           <div class="sweep" id="sweep"></div>
@@ -248,19 +203,10 @@ body { display: grid; place-items: center; }
           <path d="M0 357 L288 560 L540 373"/>
         </svg>
       </div>
+
       <div class="layer flap-shadow" id="flapShadow"></div>
-
-      <div class="layer flap" id="flap">
-        <div class="flap-face flap-front" id="flapFront"></div>
-        <div class="flap-face flap-back"  id="flapBack"></div>
-        <div class="flap-shade" id="flapShade"></div>
-      </div>
-
-      <svg class="crack" viewBox="0 0 540 960" preserveAspectRatio="none" aria-hidden="true">
-        <path id="crackPath" d="M196 495 L214 512 L228 518 L246 535 L262 539 L276 553 L288 561 L300 551 L316 546 L330 533 L348 522 L362 512 L380 494"/>
-      </svg>
-
-      <div class="chips" id="chips" aria-hidden="true"></div>
+      <div class="layer mouth-shade" id="mouthShade"></div>
+      <div class="layer flap" id="flap"></div>
 
       <button class="seal-btn" id="sealBtn" aria-label="Clique aqui para abrir o convite">
         <span class="glow" id="glow"></span>
@@ -306,135 +252,85 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 $("hsLocal").href = CONFIG.mapa;
 $("hsInsta").href = CONFIG.instagram;
 
-/* ── som sintetizado (sem arquivos externos) ────────────────── */
+/* as camadas do envelope saem do fluxo quando o convite assume a tela —
+   assim nenhuma delas pode reaparecer por cima dele */
+const ENVELOPE = ["#interior", "#body", "#flapShadow", "#mouthShade", "#flap", "#sealBtn"];
+
+/* ── som: um deslizar de papel, gerado no próprio navegador ──── */
 const Sound = {
   on: true, ctx: null,
-  init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
-  noise(dur) {
-    const ctx = this.ctx, n = Math.floor(ctx.sampleRate * dur);
-    const buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
-    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
-    const src = ctx.createBufferSource(); src.buffer = buf; return src;
-  },
-  crack() {
-    if (!this.on) return; this.init();
-    const ctx = this.ctx, t = ctx.currentTime;
-    const src = this.noise(.22), bp = ctx.createBiquadFilter(), g = ctx.createGain();
-    bp.type = "bandpass"; bp.frequency.value = 2100; bp.Q.value = 1.1;
-    g.gain.setValueAtTime(.0001, t);
-    g.gain.exponentialRampToValueAtTime(.30, t + .012);
-    g.gain.exponentialRampToValueAtTime(.0001, t + .20);
-    src.connect(bp).connect(g).connect(ctx.destination); src.start(t);
-  },
-  paper() {
-    if (!this.on) return; this.init();
-    const ctx = this.ctx, t = ctx.currentTime;
-    const src = this.noise(1.1), lp = ctx.createBiquadFilter(), g = ctx.createGain();
-    lp.type = "lowpass";
-    lp.frequency.setValueAtTime(700, t);
-    lp.frequency.linearRampToValueAtTime(2600, t + .55);
-    lp.frequency.linearRampToValueAtTime(500, t + 1.1);
-    g.gain.setValueAtTime(.0001, t);
-    g.gain.linearRampToValueAtTime(.085, t + .30);
-    g.gain.linearRampToValueAtTime(.0001, t + 1.05);
-    src.connect(lp).connect(g).connect(ctx.destination); src.start(t);
+  slide() {
+    if (!this.on) return;
+    try {
+      if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = this.ctx, t = ctx.currentTime, dur = 1.5;
+      const n = Math.floor(ctx.sampleRate * dur);
+      const buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+      const src = ctx.createBufferSource(); src.buffer = buf;
+      const lp = ctx.createBiquadFilter(), g = ctx.createGain();
+      lp.type = "lowpass";
+      lp.frequency.setValueAtTime(520, t);
+      lp.frequency.linearRampToValueAtTime(2300, t + .75);
+      lp.frequency.linearRampToValueAtTime(420, t + 1.5);
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.linearRampToValueAtTime(.055, t + .45);
+      g.gain.linearRampToValueAtTime(.0001, t + 1.45);
+      src.connect(lp).connect(g).connect(ctx.destination); src.start(t);
+    } catch (e) { /* som é opcional */ }
   }
 };
 
-/* ── partículas de lacre ────────────────────────────────────── */
-const chipEls = [];
-for (let i = 0; i < 12; i++) {
-  const c = document.createElement("i");
-  c.className = "chip";
-  const s = .55 + Math.random() * 1.1;
-  c.style.width = (6 * s) + "px"; c.style.height = (5 * s) + "px";
-  $("chips").appendChild(c); chipEls.push(c);
-}
-
-/* ── linha do tempo da abertura ─────────────────────────────── */
-const crack = $("crackPath");
-const len = crack.getTotalLength();
-crack.style.strokeDasharray = len;
-crack.style.strokeDashoffset = len;
+/* ── repouso: o lacre respira ────────────────────────────────── */
+const idle = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: "sine.inOut" } })
+  .to("#glow", { opacity: .9, scale: 1.06, duration: 2.4 }, 0);
 
 let opened = false, tl = null;
 
-const idle = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: "sine.inOut" } })
-  .to("#glow", { opacity: .95, scale: 1.07, duration: 2.1 }, 0)
-  .to("#sealBtn", { y: "-0.5%", duration: 2.1 }, 0);
-
+/* ── a abertura ──────────────────────────────────────────────── */
 function buildTimeline() {
   const t = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
 
-  /* 1 · pressão no lacre */
-  t.to("#sealBtn", { scale: .955, duration: .16, ease: "power2.in" }, 0)
-   .to("#ring",    { opacity: .9, scale: 1.5, duration: .7, ease: "power2.out" }, .08)
-   .to("#ring",    { opacity: 0, duration: .35 }, .55)
+  /* o toque */
+  t.to("#sealBtn", { scale: .972, duration: .15, ease: "power2.in" }, 0)
+   .to("#sealBtn", { scale: 1, duration: .55, ease: "power2.out" }, .15)
+   .fromTo("#ring", { opacity: .5, scale: 1 },
+                    { opacity: 0, scale: 2.1, duration: 1.15, ease: "power2.out" }, .05)
+   .to("#glow", { opacity: .95, duration: .3 }, .05)
+   .to("#glow", { opacity: 0, duration: .7 }, .35)
+   .to("#hint", { opacity: 0, duration: .3 }, 0)
 
-  /* 2 · a rachadura */
-   .to("#scene",   { x: -3, duration: .05, repeat: 5, yoyo: true, ease: "none" }, .18)
-   .set(crack,     { opacity: 1 }, .30)
-   .fromTo(crack,  { strokeDashoffset: len }, { strokeDashoffset: 0, duration: .34, ease: "power2.inOut" }, .30)
-   .to(crack,      { opacity: 0, duration: .5, ease: "power2.in" }, .66)
-   .add(() => Sound.crack(), .29)
+  /* a aba se ergue e se dissolve; a boca do envelope acende */
+   .to("#flap", { y: "-6.5%", scale: 1.012, opacity: 0, duration: 1.0, ease: "power2.inOut" }, .38)
+   .to("#flapShadow", { opacity: 0, duration: .85 }, .38)
+   .to("#sealBtn", { opacity: 0, duration: .5 }, .40)
+   .to(".edge", { opacity: 1, duration: .7 }, .50)
+   .to("#mouthShade", { opacity: 1, duration: .8, ease: "power2.out" }, .52)
 
-  /* 3 · lascas de cera */
-   .to(chipEls, {
-      opacity: 1, duration: .06,
-      stagger: { each: .012, from: "random" }
-   }, .32)
-   .to(chipEls, {
-      x:   () => gsap.utils.random(-130, 130),
-      y:   () => gsap.utils.random(60, 260),
-      rotation: () => gsap.utils.random(-320, 320),
-      opacity: 0,
-      duration: 1.15,
-      ease: "power2.in",
-      stagger: { each: .012, from: "random" }
-   }, .36)
+  /* movimento contrário: o convite sobe enquanto o envelope desce —
+     é assim que se tira um cartão de dentro de um envelope, e é o que
+     leva embora a metade do lacre que ficou na frente do envelope */
+   .to("#card", { y: "0%", scale: 1, duration: 1.8, ease: "power2.out" }, .78)
+   .to("#body", { y: "46%", duration: 1.5, ease: "power2.in" }, .78)
+   .to("#body", { opacity: 0, duration: .8, ease: "power1.in" }, .95)
+   .add(() => Sound.slide(), .76)
 
-  /* 4 · o lacre se parte e a aba se abre */
-   .to("#sealBtn",    { opacity: 0, duration: .25 }, .34)
-   .to("#hint",       { opacity: 0, duration: .25 }, 0)
-   .to("#glow",       { opacity: 0, duration: .3 }, .2)
-   .to("#flap", {
-      rotateX: -172,
-      duration: 1.5,
-      ease: "power2.inOut"
-   }, .42)
-   .set("#flapFront", { opacity: 0 }, 1.19)
-   .set("#flapBack",  { opacity: 1 }, 1.19)
-   .to("#flapShade",  { opacity: .55, duration: .68, ease: "power1.in" }, .42)
-   .to("#flapShadow", { opacity: 0, duration: .8 }, .42)
-   .to(".edge",       { opacity: 1, duration: .6 }, .55)
-   .to(["#flapBack", "#flapShade"], { opacity: 0, duration: .5, ease: "power2.in" }, 1.62)
-   .add(() => Sound.paper(), .5)
+  /* o convite fica sozinho na tela */
+   .to("#interior", { opacity: 0, duration: .7 }, 1.30)
+   .to("#mouthShade", { opacity: 0, duration: 1.0, ease: "power2.inOut" }, 1.55)
+   .to("#card", { boxShadow: "0 0px 0px 0px rgba(0,0,0,0)", duration: .8 }, 1.7)
+   .fromTo("#sweep", { opacity: 0, backgroundPosition: "120% 0" },
+                     { opacity: 1, backgroundPosition: "-40% 0", duration: 1.3, ease: "power2.inOut" }, 2.05)
+   .to("#sweep", { opacity: 0, duration: .5 }, 3.10)
+   .to("#hotspots", { opacity: 1, duration: .7 }, 2.55)
+   .to("#chrome", { opacity: 1, duration: .7 }, 2.70)
 
-  /* 5 · o convite sobe de dentro do envelope */
-   .to("#card", {
-      y: "-4%", scale: .945,
-      duration: 1.5,
-      ease: "power2.out"
-   }, .82)
-   .to("#body", { y: "36%", duration: 1.15, ease: "power2.in" }, 1.24)
-   .to("#body", { opacity: 0, duration: .52, ease: "power2.in" }, 1.30)
-   .to("#card", {
-      y: "0%", scale: 1,
-      duration: .95,
-      ease: "power3.inOut"
-   }, 1.95)
-
-  /* 6 · chegada */
-   .fromTo("#sweep",
-      { opacity: 0, backgroundPosition: "120% 0" },
-      { opacity: 1, backgroundPosition: "-40% 0", duration: 1.25, ease: "power2.inOut" }, 2.35)
-   .to("#sweep", { opacity: 0, duration: .5 }, 3.35)
-   .to("#hotspots", { opacity: 1, duration: .7 }, 2.75)
-   .to("#chrome",   { opacity: 1, duration: .7 }, 2.9)
    .add(() => {
+      /* estado final: só o convite continua na tela */
+      gsap.set(ENVELOPE, { display: "none" });
+      gsap.set("#card", { y: "0%", scale: 1, boxShadow: "none" });
       $("hotspots").classList.add("on");
       $("chrome").classList.add("on");
-      $("stage").style.perspective = "none";
    });
 
   return t;
@@ -446,10 +342,8 @@ function open(instant) {
   idle.kill();
   gsap.killTweensOf("#hint");
   gsap.set("#hint", { opacity: 0 });
-  gsap.set("#glow", { opacity: 0 });
   tl = buildTimeline();
-  if (instant || reduced) { tl.progress(1); }
-  else { tl.play(); }
+  if (instant || reduced) tl.progress(1); else tl.play();
   if (location.hash !== "#convite") history.pushState({ v: "convite" }, "", "#convite");
 }
 
@@ -458,7 +352,7 @@ function close() {
   gsap.to("#stage", {
     opacity: 0, duration: .4, onComplete: () => {
       opened = false;
-      tl && tl.kill(); tl = null;
+      if (tl) { tl.kill(); tl = null; }
       resetScene();
       gsap.to("#stage", { opacity: 1, duration: .6 });
       idle.restart();
@@ -468,26 +362,22 @@ function close() {
 }
 
 function resetScene() {
-  gsap.set("#scene", { x: 0 });
-  gsap.set("#flap", { rotateX: 0, opacity: 1 });
-  gsap.set("#flapFront", { opacity: 1 });
-  gsap.set("#flapBack", { opacity: 0 });
-  gsap.set("#flapShade", { opacity: 0 });
+  gsap.set(ENVELOPE, { clearProps: "display" });
+  gsap.set("#flap", { y: "0%", scale: 1, opacity: 1 });
   gsap.set("#flapShadow", { opacity: 1 });
+  gsap.set("#mouthShade", { opacity: 0 });
+  gsap.set("#interior", { opacity: 1 });
   gsap.set("#body", { y: "0%", opacity: 1 });
   gsap.set(".edge", { opacity: 0 });
-  gsap.set("#card", { y: "66%", scale: .9 });
-  gsap.set("#sealBtn", { opacity: 1, scale: 1, y: "0%" });
-  gsap.set("#glow", { opacity: .5, scale: 1 });
+  gsap.set("#card", { y: "66%", scale: .9, boxShadow: "0 -22px 50px -10px rgba(0,0,0,.9)" });
+  gsap.set("#sealBtn", { opacity: 1, scale: 1 });
+  gsap.set("#glow", { opacity: .45, scale: 1 });
   gsap.set("#ring", { opacity: 0, scale: 1 });
   gsap.set("#sweep", { opacity: 0 });
-  gsap.set(chipEls, { x: 0, y: 0, rotation: 0, opacity: 0 });
-  gsap.set(crack, { opacity: 0, strokeDashoffset: len });
   gsap.set("#hotspots", { opacity: 0 });
   gsap.set("#chrome", { opacity: 0 });
   $("hotspots").classList.remove("on");
   $("chrome").classList.remove("on");
-  $("stage").style.perspective = "1600px";
   gsap.to("#hint", { opacity: 1, duration: 1, delay: 2.2 });
 }
 
@@ -499,15 +389,15 @@ $("soundBtn").addEventListener("click", () => {
 });
 addEventListener("popstate", () => { if (location.hash !== "#convite") close(); });
 
-/* ── leve paralaxe do envelope ──────────────────────────────── */
+/* ── paralaxe discreta, só no desktop e só em 2D ─────────────── */
 if (!reduced && matchMedia("(hover: hover)").matches) {
-  const qx = gsap.quickTo("#tilt", "rotationY", { duration: .9, ease: "power3.out" });
-  const qy = gsap.quickTo("#tilt", "rotationX", { duration: .9, ease: "power3.out" });
+  const qx = gsap.quickTo("#tilt", "x", { duration: 1, ease: "power3.out" });
+  const qy = gsap.quickTo("#tilt", "y", { duration: 1, ease: "power3.out" });
   addEventListener("pointermove", (e) => {
     if (opened) { qx(0); qy(0); return; }
     const r = $("stage").getBoundingClientRect();
-    qx(((e.clientX - r.left) / r.width - .5) * 8);
-    qy((.5 - (e.clientY - r.top) / r.height) * 6);
+    qx(((e.clientX - r.left) / r.width - .5) * 10);
+    qy(((e.clientY - r.top) / r.height - .5) * 7);
   });
 }
 

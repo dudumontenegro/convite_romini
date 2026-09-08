@@ -33,17 +33,22 @@ Depois rode `python3 build-artifact.py` para regerar o arquivo único.
 Não há corte nem troca de imagem: a **mesma** foto do envelope é recortada por
 `clip-path` na linha exata do V (medida do PDF: as bordas encontram as laterais em
 37,19% e 38,85%, e o bico fica em 53,33% / 58,33%). A parte de cima vira a aba, a de
-baixo vira o corpo. Como o lacre de cera está bem em cima do bico, ele se parte
-sozinho na linha do recorte quando a aba sobe — a metade de cima vai junto com a aba,
-a de baixo fica no corpo. A sequência, no GSAP:
+baixo vira o corpo. A sequência, no GSAP:
 
-1. o lacre afunda e uma onda sai dele
-2. rachadura de luz no bico + 12 lascas de cera + estalo sintetizado (Web Audio)
-3. a aba gira em `rotateX(-172°)` em 3D e troca de face aos 90°
-4. o convite sobe **de dentro** do envelope (atrás do corpo, na frente do forro)
-5. o corpo desce e some; o convite ocupa a tela com um brilho passando
+1. o lacre afunda e uma onda fina se abre a partir dele
+2. a aba se ergue e se dissolve; a aresta da boca do envelope acende
+3. **movimento contrário** — o convite sobe enquanto o envelope desce, que é como
+   se tira um cartão de dentro de um envelope de verdade
+4. uma sombra fixa na boca do envelope deixa tudo abaixo dela no escuro, então o
+   convite sai da sombra para a luz conforme sobe
+5. o envelope some e o convite assume a tela, com um brilho passando uma vez
 
-Camadas, de trás para frente: forro → convite → corpo do envelope → aba → rachadura.
+Camadas, de trás para frente: forro → convite → corpo do envelope → sombra da boca → aba.
+
+**Estado final:** quando a animação termina, todas as camadas do envelope recebem
+`display: none`. Isso não é só limpeza — é o que impede o bug de composição do Safari
+no iOS, em que o forro preto do envelope reaparecia por cima do convite. A animação
+também é 100% 2D (sem `preserve-3d`), justamente a causa daquele bug.
 
 ## Detalhes
 
