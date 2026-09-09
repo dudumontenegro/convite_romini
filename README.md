@@ -1,6 +1,6 @@
 # Convite Digital — Inauguração do Showroom Romini
 
-Convite interativo feito a partir do `CONVITE DIGITAL.pdf`. O PDF é uma única página
+Convite interativo feito a partir do `CONVITE DIGITAL 2.pdf`. O PDF é uma única página
 de 540×1920 pt — na verdade **duas telas 9:16 empilhadas**: o envelope lacrado em cima
 e o convite embaixo. O site reproduz o layout original pixel a pixel e liga as duas
 telas com a animação de abertura do envelope.
