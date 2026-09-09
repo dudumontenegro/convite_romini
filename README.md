@@ -1,6 +1,6 @@
 # Convite Digital — Inauguração do Showroom Romini
 
-Convite interativo feito a partir do `CONVITE DIGITAL 2.pdf`. O PDF é uma única página
+Convite interativo feito a partir do `CONVITE DIGITAL 3.pdf`. O PDF é uma única página
 de 540×1920 pt — na verdade **duas telas 9:16 empilhadas**: o envelope lacrado em cima
 e o convite embaixo. O site reproduz o layout original pixel a pixel e liga as duas
 telas com a animação de abertura do envelope.
@@ -15,16 +15,20 @@ telas com a animação de abertura do envelope.
 | `convite-completo.html` | **Arquivo único**, imagens embutidas — é só enviar/hospedar |
 | `build-artifact.py` | Regera o `convite-completo.html` a partir do `index.html` |
 
-## Antes de publicar: troque os dois links
+## Antes de publicar: confira os três links
 
 No topo do `<script>` em `index.html`:
 
 ```js
 const CONFIG = {
-  mapa:      "https://...",   // botão do pin
-  instagram: "https://..."    // botão do Instagram
+  whatsapp:  "https://wa.me/5583993398397?text=...",  // botão "confirmar presença"
+  mapa:      "https://...",                           // botão do pin
+  instagram: "https://..."                            // botão do Instagram
 };
 ```
+
+O botão de confirmar presença abre o WhatsApp do número **83 99339-8397** já com a
+mensagem "Oi! Estou confirmando a minha presença para o Showroom" escrita.
 
 Depois rode `python3 build-artifact.py` para regerar o arquivo único.
 

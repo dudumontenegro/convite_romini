@@ -155,6 +155,7 @@ body { display: grid; place-items: center; }
   transition: transform .35s cubic-bezier(.2,.7,.3,1), background-color .35s;
 }
 .hotspot:hover, .hotspot:focus-visible { background: rgba(255,255,255,.07); transform: translateY(-2px); outline: none; }
+.hs-zap   { left: 11.1%; }
 .hs-local { left: 42.2%; }
 .hs-insta { left: 74.5%; }
 
@@ -202,7 +203,7 @@ body { display: grid; place-items: center; }
 
       <div class="layer card-wrap" id="cardWrap">
         <div class="card" id="card" role="img"
-             aria-label="Convite: a Romini convida você para a inauguração do seu novo showroom em João Pessoa. Dia 17 de setembro, às 19h.">
+             aria-label="Convite: a Romini convida você para a inauguração do seu showroom em João Pessoa. Dia 17 de setembro, às 19 horas.">
           <div class="sweep" id="sweep"></div>
         </div>
       </div>
@@ -225,6 +226,8 @@ body { display: grid; place-items: center; }
       <p class="hint" id="hint">toque no lacre</p>
 
       <div class="hotspots" id="hotspots">
+        <a class="hotspot hs-zap" id="hsZap" href="#" target="_blank" rel="noopener"
+           aria-label="Confirmar presença pelo WhatsApp"></a>
         <a class="hotspot hs-local" id="hsLocal" href="#" target="_blank" rel="noopener"
            aria-label="Ver o local no mapa"></a>
         <a class="hotspot hs-insta" id="hsInsta" href="#" target="_blank" rel="noopener"
@@ -248,9 +251,11 @@ body { display: grid; place-items: center; }
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   CONFIGURAÇÃO — troque os dois links abaixo pelos oficiais
+   CONFIGURAÇÃO — troque os três links abaixo pelos oficiais
    ═══════════════════════════════════════════════════════════════ */
 const CONFIG = {
+  whatsapp:  "https://wa.me/5583993398397?text=" +
+             encodeURIComponent("Oi! Estou confirmando a minha presença para o Showroom"),
   mapa:      "https://www.google.com/maps/search/?api=1&query=Romini+M%C3%B3veis+Planejados+Jo%C3%A3o+Pessoa",
   instagram: "https://www.instagram.com/rominiplanejados/"
 };
@@ -258,6 +263,7 @@ const CONFIG = {
 const $ = (id) => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+$("hsZap").href   = CONFIG.whatsapp;
 $("hsLocal").href = CONFIG.mapa;
 $("hsInsta").href = CONFIG.instagram;
 
